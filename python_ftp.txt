@@ -1,0 +1,49 @@
+import os
+import pandas as pd
+
+from datetime import datetime
+import numpy as np
+import time
+import ftplib
+import imaplib
+
+import email as email
+import re
+import smtplib
+from email.mime.multipart import  MIMEMultipart
+from email.mime.text import  MIMEText
+
+## Connect to gwp ftp site and download the files
+
+server = "ftp.sscgateway.com"
+user = "SSC290"
+password = "Sw33tPastry4"
+source = "/usr/ssc290/research"
+destination = "\\\\Bloomberg2\\_InvestmentTeam\\Infrastructure\\exception_reports\\"
+destination_exception_table = "\\\\BLOOMBERG\\_InvestmentTeam\\Portfolio Management\\Portfolio Monitoring\\"
+interval = 0.05
+error_msg = ""
+
+try:
+    ftp = ftplib.FTP(server)
+    ftp.login(user,password)
+except:
+    error_msg = error_msg + " FTP connection error to ssc gateway. \n"
+
+try:
+    ftp.cwd(source)
+    os.chdir(destination)
+    exception_file = "all_etf_exceptions.xls"
+    account_master = "Current Portfolios"
+    try:
+        ftp.retrbinary("RETR "+exception_file, open(os.path.join(destination, exception_file), "wb").write)
+    except:
+        error_msg = error_msg +" Error downloading exception file. \n"
+    try:
+        ftp.retrbinary("RETR "+account_master, open(os.path.join(destination, account_master), "wb").write)
+    except:
+        error_msg = error_msg +" Error downloading account_master. \n"
+
+    ftp.quit()
+except:
+    pass
